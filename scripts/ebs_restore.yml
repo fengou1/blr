@@ -1,0 +1,86 @@
+# # Global variables are applied to all deployments and used as the default value of
+# # the deployments if a specific deployment value is missing.
+global:
+  user: "br_ou"
+  # group: "tidb"
+  ssh_port: 22
+  arch: "amd64"
+
+server_configs:
+  tidb:
+    performance.run-auto-analyze: false
+    split-table: true
+  tikv:
+    readpool.storage.use-unified-pool: false
+    readpool.coprocessor.use-unified-pool: true
+    raft-engine.enable: false
+    coprocessor.region-max-size: 8MB
+    coprocessor.region-split-size: 6MB
+  pd:
+    schedule.split-merge-interval: 10s
+    schedule.enable-cross-table-merge: false
+    replication.enable-placement-rules: true
+    replication.location-labels: ["host"]
+
+# # Monitored variables are applied to all the machines.
+monitored:
+  node_exporter_port: 9100
+  blackbox_exporter_port: 9115
+
+pd_servers:
+  # # The ip address of the PD Server.
+  - host: 172.16.4.2
+    deploy_dir: "/ebs/restore/pd/pd-deploy"
+    data_dir: "/ebs/restore/pd/pd-data"
+# # Server configs are used to specify the configuration of TiDB Servers.
+tidb_servers:
+  # # The ip address of the TiDB Server.
+  - host: 172.16.4.2
+    port: 44000
+    deploy_dir: "/ebs/restore/tidb/tidb-deploy"
+    #data_dir: "/ebs/restore/tidb/tidb-data"
+    resource_control:
+      memory_limit: "32G"
+      cpu_quota: "1600%"
+# # Server configs are used to specify the configuration of TiKV Servers.
+tikv_servers:
+  - host: 172.16.4.2
+    port: 20177
+    status_port: 20190
+    deploy_dir: "/ebs/restore/tikv_1/tikv"
+    data_dir: "/ebs/restore/tikv_1/tikv_d"
+    resource_control:
+      memory_limit: "32G"
+      cpu_quota: "800%"
+    config:
+      server.labels: { host: "logic-host-x1" }
+  - host: 172.16.4.2
+    port: 20178
+    status_port: 20191
+    deploy_dir: "/ebs/restore/tikv_2/tikv"
+    data_dir: "/ebs/restore/tikv_2/tikv_d"
+    resource_control:
+      memory_limit: "32G"
+      cpu_quota: "800%"
+    config:
+      server.labels: { host: "logic-host-x2" }
+  - host: 172.16.4.2
+    port: 20179
+    status_port: 20192
+    deploy_dir: "/ebs/restore/tikv_3/tikv_179"
+    data_dir: "/ebs/restore/tikv_3/tikv_d_179"
+    resource_control:
+      memory_limit: "32G"
+      cpu_quota: "800%"
+    config:
+        server.labels: { host: "logic-host-x3" }
+
+monitoring_servers:
+  - host: 172.16.4.2
+
+grafana_servers:
+  - host: 172.16.4.2
+    deploy_dir: "/ebs/restore/grafana/deploy"
+#    data_dir: "/ebs/grafana/data"
+alertmanager_servers:
+  - host: 172.16.4.2
