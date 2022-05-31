@@ -38,14 +38,33 @@ sub_restore() {
     yes | cp /tidb-deploy/tikv-20162/bin/tikv-server.bak /tidb-deploy/tikv-20162/bin/tikv-server
 }
 
+sub_clean() {
+    echo "rm -rf /tidb-deploy/tikv-20160/log/*.log"
+    rm -rf /tidb-deploy/tikv-20160/log/*.log
+    echo "rm -rf /tidb-deploy/tikv-20161/log/*.log"
+    rm -rf /tidb-deploy/tikv-20161/log/*.log
+    echo "rm -rf /tidb-deploy/tikv-20162/log/*.log"
+    rm -rf /tidb-deploy/tikv-20162/log/*.log
+
+    echo "remove '/--recovery-addr/d' /tidb-deploy/tikv-20160/scripts/run_tikv.sh"
+    sed -i '/--recovery-addr/d' /tidb-deploy/tikv-20160/scripts/run_tikv.sh
+    
+    echo "remove '/--recovery-addr/d' /tidb-deploy/tikv-20161/scripts/run_tikv.sh"
+    sed -i '/--recovery-addr/d' /tidb-deploy/tikv-20161/scripts/run_tikv.sh
+
+    echo "remove '/--recovery-addr/d' /tidb-deploy/tikv-20162/scripts/run_tikv.sh"
+    sed -i '/--recovery-addr/d' /tidb-deploy/tikv-20162/scripts/run_tikv.sh
+}
+
 sub_help()
 {
    echo ""
-   echo "Usage: $0 [backup|restore|help"
+   echo "Usage: $0 [backup|restore|clean|help"
 
    echo "options:"
    echo "backup    backup the tikv-server and run script"
    echo "restore   restore the tikv-server and run script"
+   echo "clean     clean up the log file and recovery parameter"
    echo "-h        print help and exit."
    echo
 }

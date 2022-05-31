@@ -16,6 +16,10 @@
 
 # in IDC, backup only to hard kill the tikv process
 # assumption: before call this function, tikv-server systemd auto-restart shall be disabled.
+
+pd=10.244.7.158:2379
+
+
 sub_snap() {
     pid_list=$(pgrep -f bin/tikv-server)
     echo "${pid_list}"
@@ -47,7 +51,7 @@ add_recovery_service() {
     if [[ -z "${tikv1_in_recovery}" ]]
     then
         echo "add recovery serivice 10.244.7.158:3379 for tikv #1"
-        sed -i '20 a     --recovery-addr "10.244.7.158:3379" \\' $tikv1_run
+        sed -i '20 a  --recovery-addr "10.244.7.158:3379" \\' $tikv1_run
     fi
     if [[ -z "$tikv2_in_recovery" ]]
     then
@@ -111,30 +115,30 @@ sub_copy() {
     add_stdout_log
 }
 
-sub_clean() {
-    echo "rm -rf /tidb-deploy/tikv-20160/log/*.log"
-    rm -rf /tidb-deploy/tikv-20160/log/*.log
-    echo "rm -rf /tidb-deploy/tikv-20161/log/*.log"
-    rm -rf /tidb-deploy/tikv-20161/log/*.log
-    echo "rm -rf /tidb-deploy/tikv-20162/log/*.log"
-    rm -rf /tidb-deploy/tikv-20162/log/*.log
-
-    echo "remove '/--recovery-addr/d' /tidb-deploy/tikv-20160/scripts/run_tikv.sh"
-    sed -i '/--recovery-addr/d' /tidb-deploy/tikv-20160/scripts/run_tikv.sh
-    
-    echo "remove '/--recovery-addr/d' /tidb-deploy/tikv-20161/scripts/run_tikv.sh"
-    sed -i '/--recovery-addr/d' /tidb-deploy/tikv-20161/scripts/run_tikv.sh
-
-    echo "remove '/--recovery-addr/d' /tidb-deploy/tikv-20162/scripts/run_tikv.sh"
-    sed -i '/--recovery-addr/d' /tidb-deploy/tikv-20162/scripts/run_tikv.sh
+check_cluster_online () {
+    online=$(tiup ctl:v5.4.0 pd cluster -u http://$pd)
+    echo "return online: $online"
+    if [[ "$online" == "Failed to get the cluster information"* ]]
+    then
+        echo "pd $pd is not online, exit $ProgName."
+        exit 1;
+    else
+        echo "pd $i is runing ..."
+    fi
 }
 
-
+config_pd () {
+    check_cluster_online
+    tiup ctl:v6.0.0 pd config set merge-schedule-limit 0 -u http://$pd
+    tiup ctl:v6.0.0 pd config set region-schedule-limit 0 -u http://$pd
+    tiup ctl:v6.0.0 pd config set replica-schedule-limit 0 -u http://$pd
+}
 
 sub_restore() {
     # add stdout into log file for debug
     # TODO: sed -i 's/tikv_stderr\.log"/& 2>> "/tidb-deploy/tikv-20160/log/tikv_std\.log"' /tidb-deploy/tikv-20160/scripts/run_tikv.sh
     # add recovery service in tikv start script
+    config_pd
     echo "start block-level recovery service ..."
     tmux new-session -s 'blr' -d ./blr_restore.sh
 }
@@ -164,16 +168,14 @@ sub_prepare(){
 sub_help()
 {
    echo ""
-   echo "Usage: $0 [copy|prepare|snapshot|restore|dsnap|clean]"
+   echo "Usage: $0 [copy|prepare|snap|restore|dsnap|clean]"
 
    echo "options:"
    echo "copy      replace cluster tikv-server by build binary"
    echo "prepare   prepare data for backup: sysbench to generate some data in tidb cluster"
    echo "snap      take snapshot for tidb cluster"
    echo "restore   restore snapshot into restore folder"
-   echo "dsnap     unmount the snapshot and delete the snapshot"
    echo "clean     remove the data from tidb cluster data and deploy folder."
-   echo "copy      copy to another machine."
    echo "-h        print help and exit."
    echo
 }
