@@ -43,26 +43,26 @@ add_recovery_service() {
     # add recovery service in tikv start script
     echo "add recovery service into tikv startup..."
     unset tikv1_in_recovery
-    tikv1_in_recovery=$(grep '\--recovery-addr' /tidb-deploy/tikv-20160/scripts/run_tikv.sh)
+    tikv1_in_recovery=$(grep '\--recovery-mode' /tidb-deploy/tikv-20160/scripts/run_tikv.sh)
     unset tikv2_in_recovery
-    tikv2_in_recovery=$(grep '\--recovery-addr' /tidb-deploy/tikv-20161/scripts/run_tikv.sh)
+    tikv2_in_recovery=$(grep '\--recovery-mode' /tidb-deploy/tikv-20161/scripts/run_tikv.sh)
     unset tikv3_in_recovery
-    tikv3_in_recovery=$(grep '\--recovery-addr' /tidb-deploy/tikv-20162/scripts/run_tikv.sh)
+    tikv3_in_recovery=$(grep '\--recovery-mode' /tidb-deploy/tikv-20162/scripts/run_tikv.sh)
     if [[ -z "${tikv1_in_recovery}" ]]
     then
-        echo "add recovery serivice 10.244.7.158:3379 for tikv #1"
-        sed -i '20 a  --recovery-addr "10.244.7.158:3379" \\' $tikv1_run
+        echo "add recovery mode for tikv #1"
+        sed -i '20 a  --recovery-mode true \\' $tikv1_run
     fi
     if [[ -z "$tikv2_in_recovery" ]]
     then
-        echo "add recovery serivice 10.244.7.158:3379 for tikv #2"
-        sed -i '20 a --recovery-addr "10.244.7.158:3379" \\' $tikv2_run
+        echo "add recovery mode for tikv #2"
+        sed -i '20 a --recovery-mode true \\' $tikv2_run
     fi
 
     if [[ -z "$tikv3_in_recovery" ]]
     then
-        echo "add recovery serivice 10.244.7.158:3379 for tikv #3"
-        sed -i '20 a --recovery-addr "10.244.7.158:3379" \\' $tikv3_run
+        echo "add recovery mode for tikv #3"
+        sed -i '20 a --recovery-mode true \\' $tikv3_run
     fi
 }
 
@@ -93,7 +93,7 @@ add_stdout_log(){
 
 # copy the build binary to tikv deploy folder
 # assumption: tikv-server or tidb cluster is stopped
-build_bin=/code/tikv/target/release/tikv-server
+build_bin=/code/dev/tikv/target/release/tikv-server
 deploy_tikv1=/tidb-deploy/tikv-20160
 deploy_tikv2=/tidb-deploy/tikv-20161
 deploy_tikv3=/tidb-deploy/tikv-20162
@@ -138,7 +138,7 @@ sub_restore() {
     # add stdout into log file for debug
     # TODO: sed -i 's/tikv_stderr\.log"/& 2>> "/tidb-deploy/tikv-20160/log/tikv_std\.log"' /tidb-deploy/tikv-20160/scripts/run_tikv.sh
     # add recovery service in tikv start script
-    config_pd
+    # config_pd
     echo "start block-level recovery service ..."
     tmux new-session -s 'blr' -d ./blr_restore.sh
 }

@@ -46,14 +46,14 @@ sub_clean() {
     echo "rm -rf /tidb-deploy/tikv-20162/log/*.log"
     rm -rf /tidb-deploy/tikv-20162/log/*.log
 
-    echo "remove '/--recovery-addr/d' /tidb-deploy/tikv-20160/scripts/run_tikv.sh"
-    sed -i '/--recovery-addr/d' /tidb-deploy/tikv-20160/scripts/run_tikv.sh
+    echo "remove '/--recovery-mode/d' /tidb-deploy/tikv-20160/scripts/run_tikv.sh"
+    sed -i '/--recovery-mode/d' /tidb-deploy/tikv-20160/scripts/run_tikv.sh
     
-    echo "remove '/--recovery-addr/d' /tidb-deploy/tikv-20161/scripts/run_tikv.sh"
-    sed -i '/--recovery-addr/d' /tidb-deploy/tikv-20161/scripts/run_tikv.sh
+    echo "remove '/--recovery-mode/d' /tidb-deploy/tikv-20161/scripts/run_tikv.sh"
+    sed -i '/--recovery-mode/d' /tidb-deploy/tikv-20161/scripts/run_tikv.sh
 
-    echo "remove '/--recovery-addr/d' /tidb-deploy/tikv-20162/scripts/run_tikv.sh"
-    sed -i '/--recovery-addr/d' /tidb-deploy/tikv-20162/scripts/run_tikv.sh
+    echo "remove '/--recovery-mode/d' /tidb-deploy/tikv-20162/scripts/run_tikv.sh"
+    sed -i '/--recovery-mode/d' /tidb-deploy/tikv-20162/scripts/run_tikv.sh
 }
 
 sub_help()
