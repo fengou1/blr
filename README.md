@@ -7,8 +7,10 @@ TiDB takes advantage of storage system which support snapshot, to do the backup 
 
 this project will help to simulate a snapshot function on block-level.
 
-Structure:
+# Structure
 aws: scripts for TiDB Cluster on EBS-based snapshot backup and restore.
+
 idc: scripts for TiDB backup and restore by simulating the snapshot in local idc
+
 lvm: scritps for TiDB using LVM snapshot functionality, it require the system has free LVM volume group.
 
