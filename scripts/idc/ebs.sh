@@ -93,10 +93,13 @@ add_stdout_log(){
 
 # copy the build binary to tikv deploy folder
 # assumption: tikv-server or tidb cluster is stopped
+#build_bin=/root/tikv-server
 build_bin=/code/dev/tikv/target/release/tikv-server
 deploy_tikv1=/tidb-deploy/tikv-20160
 deploy_tikv2=/tidb-deploy/tikv-20161
 deploy_tikv3=/tidb-deploy/tikv-20162
+deploy_pd=/tidb-deploy/pd-2379/bin
+pd_bin=/code/pd/bin/pd-server
 
 sub_copy() {
     echo "copy build binary ..."
@@ -107,11 +110,15 @@ sub_copy() {
     echo "cp $build_bin $deploy_tikv3/bin/"
     yes | cp $build_bin $deploy_tikv3"/bin/"
 
+    echo "copy pd binary ..."
+    echo "cp $pd_bin $deploy_pd"
+    yes | cp $pd_bin $deploy_pd
+
     echo "copy run tikv script ..."
     yes | cp  $tikv1_run".bak" $tikv1_run
     yes | cp  $tikv2_run".bak" $tikv2_run
     yes | cp  $tikv3_run".bak" $tikv3_run
-    add_recovery_service
+#    add_recovery_service
     add_stdout_log
 }
 
